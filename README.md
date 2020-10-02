@@ -3,6 +3,8 @@
 This is a little interactive demo of the type II functional response mutualism model described by Algarra et al 
 here https://ifisc.uib-csic.es//~jramasco/text/ecol_eqs.pdf.
 
+![image](landscape_images/stream_mutual_dependence.png)
+
 ## Other references
 https://mathematica.stackexchange.com/questions/74214/the-lotka-volterra-predator-prey-model
 
