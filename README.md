@@ -11,6 +11,13 @@ These visualisations can also be used as a way to think about landscape design.
 
 ![landscape design streams](landscape_images/stream_mutual_dependence.png)
 
+## Run the notebook
+
+```bash
+pip install -r requirements.txt
+python -m jupyter notebook
+```
+
 ## Other references
 https://mathematica.stackexchange.com/questions/74214/the-lotka-volterra-predator-prey-model
 
