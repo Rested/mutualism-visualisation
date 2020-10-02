@@ -221,13 +221,13 @@ images = [
         "r1": -10,
         "r2": 10,
         "arrow_style": "Stream",
-        "grid_toggle": "On",
+        "grid_toggle": "Off",
     }),
     ("stream_mutual_dependence", {
         "r1": -5,
         "r2": -4,
         "arrow_style": "Stream",
-        "grid_toggle": "On",
+        "grid_toggle": "Off",
     }),
 ]
 
