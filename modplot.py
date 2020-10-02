@@ -2,8 +2,7 @@
 Streamline plotting for 2D vector fields.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import six
 from matplotlib.streamplot import TerminateTrajectory
@@ -19,10 +18,26 @@ import matplotlib.lines as mlines
 import matplotlib.patches as patches
 
 
-def velovect(axes, x, y, u, v, linewidth=None, color=None,
-             cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-             transform=None, zorder=None, start_points=None,
-             scale=1.0, grains=15):
+def velovect(
+    axes,
+    x,
+    y,
+    u,
+    v,
+    linewidth=None,
+    color=None,
+    cmap=None,
+    norm=None,
+    arrowsize=1,
+    arrowstyle=patches.ArrowStyle(
+        "Fancy", head_length=0.5, head_width=0.4, tail_width=0.4
+    ),
+    transform=None,
+    zorder=None,
+    start_points=None,
+    scale=1.0,
+    grains=15,
+):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -92,7 +107,7 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
         color = axes._get_lines.get_next_color()
 
     if linewidth is None:
-        linewidth = matplotlib.rcParams['lines.linewidth']
+        linewidth = matplotlib.rcParams["lines.linewidth"]
 
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
@@ -100,25 +115,25 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
         if color.shape != grid.shape:
-            raise ValueError(
-                "If 'color' is given, must have the shape of 'Grid(x,y)'")
+            raise ValueError("If 'color' is given, must have the shape of 'Grid(x,y)'")
         line_colors = []
         color = np.ma.masked_invalid(color)
     else:
-        line_kw['color'] = color
-        arrow_kw['color'] = color
+        line_kw["color"] = color
+        arrow_kw["color"] = color
 
     if isinstance(linewidth, np.ndarray):
         if linewidth.shape != grid.shape:
             raise ValueError(
-                "If 'linewidth' is given, must have the shape of 'Grid(x,y)'")
-        line_kw['linewidth'] = []
+                "If 'linewidth' is given, must have the shape of 'Grid(x,y)'"
+            )
+        line_kw["linewidth"] = []
     else:
-        line_kw['linewidth'] = linewidth
-        arrow_kw['linewidth'] = linewidth
+        line_kw["linewidth"] = linewidth
+        arrow_kw["linewidth"] = linewidth
 
-    line_kw['zorder'] = zorder
-    arrow_kw['zorder'] = zorder
+    line_kw["zorder"] = zorder
+    arrow_kw["zorder"] = zorder
 
     ## Sanity checks.
     if u.shape != grid.shape or v.shape != grid.shape:
@@ -130,7 +145,7 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
     magnitude /= np.max(magnitude)
 
     resolution = scale / grains
-    minlength = .9 * resolution
+    minlength = 0.9 * resolution
     integrate = get_integrator(u, v, dmap, minlength, resolution, magnitude)
 
     trajectories = []
@@ -143,10 +158,13 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
 
     # Check if start_points are outside the data boundaries
     for xs, ys in sp2:
-        if not (grid.x_origin <= xs <= grid.x_origin + grid.width
-                and grid.y_origin <= ys <= grid.y_origin + grid.height):
-            raise ValueError("Starting point ({}, {}) outside of data "
-                             "boundaries".format(xs, ys))
+        if not (
+            grid.x_origin <= xs <= grid.x_origin + grid.width
+            and grid.y_origin <= ys <= grid.y_origin + grid.height
+        ):
+            raise ValueError(
+                "Starting point ({}, {}) outside of data " "boundaries".format(xs, ys)
+            )
 
     # Convert start_points from data to array coords
     # Shift the seed points from the bottom left of the data so that
@@ -165,7 +183,7 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
         if norm is None:
             norm = mcolors.Normalize(color.min(), color.max())
         if cmap is None:
-            cmap = cm.get_cmap(matplotlib.rcParams['image.cmap'])
+            cmap = cm.get_cmap(matplotlib.rcParams["image.cmap"])
         else:
             cmap = cm.get_cmap(cmap)
 
@@ -187,33 +205,36 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
         s = np.cumsum(np.sqrt(np.diff(tx) ** 2 + np.diff(ty) ** 2))
         n = np.searchsorted(s, s[-1])
         arrow_tail = (tx[n], ty[n])
-        arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
+        arrow_head = (np.mean(tx[n : n + 2]), np.mean(ty[n : n + 2]))
 
         if isinstance(linewidth, np.ndarray):
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
-            line_kw['linewidth'].extend(line_widths)
-            arrow_kw['linewidth'] = line_widths[n]
+            line_kw["linewidth"].extend(line_widths)
+            arrow_kw["linewidth"] = line_widths[n]
 
         if use_multicolor_lines:
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.append(color_values)
-            arrow_kw['color'] = cmap(norm(color_values[n]))
+            arrow_kw["color"] = cmap(norm(color_values[n]))
 
         if not edge:
             p = patches.FancyArrowPatch(
-                arrow_tail, arrow_head, transform=transform, **arrow_kw)
+                arrow_tail, arrow_head, transform=transform, **arrow_kw
+            )
         else:
             continue
 
-        ds = np.sqrt((arrow_tail[0] - arrow_head[0]) ** 2 + (arrow_tail[1] - arrow_head[1]) ** 2)
+        ds = np.sqrt(
+            (arrow_tail[0] - arrow_head[0]) ** 2 + (arrow_tail[1] - arrow_head[1]) ** 2
+        )
 
-        if ds < 1e-15: continue  # remove vanishingly short arrows that cause Patch to fail
+        if ds < 1e-15:
+            continue  # remove vanishingly short arrows that cause Patch to fail
 
         axes.add_patch(p)
         arrows.append(p)
 
-    lc = mcollections.LineCollection(
-        streamlines, transform=transform, **line_kw)
+    lc = mcollections.LineCollection(streamlines, transform=transform, **line_kw)
     lc.sticky_edges.x[:] = [grid.x_origin, grid.x_origin + grid.width]
     lc.sticky_edges.y[:] = [grid.y_origin, grid.y_origin + grid.height]
     if use_multicolor_lines:
@@ -229,7 +250,6 @@ def velovect(axes, x, y, u, v, linewidth=None, color=None,
 
 
 class StreamplotSet(object):
-
     def __init__(self, lines, arrows, **kwargs):
         self.lines = lines
         self.arrows = arrows
@@ -237,6 +257,7 @@ class StreamplotSet(object):
 
 # Coordinate definitions
 # ========================
+
 
 class DomainMap(object):
     """Map representing different coordinate systems.
@@ -263,16 +284,15 @@ class DomainMap(object):
         self.x_grid2mask = (mask.nx - 1) / grid.nx
         self.y_grid2mask = (mask.ny - 1) / grid.ny
 
-        self.x_mask2grid = 1. / self.x_grid2mask
-        self.y_mask2grid = 1. / self.y_grid2mask
+        self.x_mask2grid = 1.0 / self.x_grid2mask
+        self.y_mask2grid = 1.0 / self.y_grid2mask
 
-        self.x_data2grid = 1. / grid.dx
-        self.y_data2grid = 1. / grid.dy
+        self.x_data2grid = 1.0 / grid.dx
+        self.y_data2grid = 1.0 / grid.dy
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
-        return (int((xi * self.x_grid2mask) + 0.5),
-                int((yi * self.y_grid2mask) + 0.5))
+        return (int((xi * self.x_grid2mask) + 0.5), int((yi * self.y_grid2mask) + 0.5))
 
     def mask2grid(self, xm, ym):
         return xm * self.x_mask2grid, ym * self.y_mask2grid
@@ -401,6 +421,7 @@ class StreamMask(object):
 # Integrator definitions
 # ========================
 
+
 def get_integrator(u, v, dmap, minlength, resolution, magnitude):
     # rescale velocity onto grid-coordinates for integrations.
     u, v = dmap.data2grid(u, v)
@@ -414,7 +435,7 @@ def get_integrator(u, v, dmap, minlength, resolution, magnitude):
         ds_dt = interpgrid(speed, xi, yi)
         if ds_dt == 0:
             raise TerminateTrajectory()
-        dt_ds = 1. / ds_dt
+        dt_ds = 1.0 / ds_dt
         ui = interpgrid(u, xi, yi)
         vi = interpgrid(v, xi, yi)
         return ui * dt_ds, vi * dt_ds
@@ -430,12 +451,14 @@ def get_integrator(u, v, dmap, minlength, resolution, magnitude):
         resulting trajectory is None if it is shorter than `minlength`.
         """
 
-        stotal, x_traj, y_traj = 0., [], []
+        stotal, x_traj, y_traj = 0.0, [], []
 
         dmap.start_trajectory(x0, y0)
 
         dmap.reset_start_point(x0, y0)
-        stotal, x_traj, y_traj, m_total, hit_edge = _integrate_rk12(x0, y0, dmap, forward_time, resolution, magnitude)
+        stotal, x_traj, y_traj, m_total, hit_edge = _integrate_rk12(
+            x0, y0, dmap, forward_time, resolution, magnitude
+        )
 
         if len(x_traj) > 1:
             return (x_traj, y_traj), hit_edge
@@ -480,7 +503,7 @@ def _integrate_rk12(x0, y0, dmap, f, resolution, magnitude):
     # increment the location gradually. However, due to the efficient
     # nature of the interpolation, this doesn't boost speed by much
     # for quite a bit of complexity.
-    maxds = min(1. / dmap.mask.nx, 1. / dmap.mask.ny, 0.1)
+    maxds = min(1.0 / dmap.mask.nx, 1.0 / dmap.mask.ny, 0.1)
 
     ds = maxds
     stotal = 0
@@ -497,8 +520,7 @@ def _integrate_rk12(x0, y0, dmap, f, resolution, magnitude):
         m_total.append(interpgrid(magnitude, xi, yi))
         try:
             k1x, k1y = f(xi, yi)
-            k2x, k2y = f(xi + ds * k1x,
-                         yi + ds * k1y)
+            k2x, k2y = f(xi + ds * k1x, yi + ds * k1y)
         except IndexError:
             # Out of the domain on one of the intermediate integration steps.
             # Take an Euler step to the boundary to improve neatness.
@@ -567,6 +589,7 @@ def _euler_step(xf_traj, yf_traj, dmap, f):
 
 # Utility functions
 # ========================
+
 
 def interpgrid(a, xi, yi):
     """Fast 2D, linear interpolation on an integer grid"""
